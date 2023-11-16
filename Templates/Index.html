@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order and Payment System</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f8f9fa;
+            color: #495057;
+        }
+
+        #container {
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        #formContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        select, input {
+            padding: 10px;
+            margin-bottom: 20px;
+            width: 250px;
+            font-size: 16px;
+        }
+
+        #output {
+            display: none;
+            margin: 20px 0;
+            padding: 15px;
+            font-size: 18px;
+            background-color: #e6e6e6;
+            border-radius: 5px;
+        }
+
+        #proceedButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #ffc107;
+            color: #212529;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        #proceedButton:hover {
+            background-color: #ffd43b;
+        }
+
+        #cancelButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #dc3545;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        #cancelButton:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Order and Payment System</h1>
+        <div id="formContainer">
+            <label for="productSelect">Select a Product:</label>
+            <select id="productSelect" onchange="updateTotalAmount()">
+                <option value="product1" data-cost="50">Product 1</option>
+                <option value="product2" data-cost="30">Product 2</option>
+                <option value="product3" data-cost="25">Product 3</option>
+                <option value="product4" data-cost="40">Product 4</option>
+                <option value="product5" data-cost="60">Product 5</option>
+                <option value="product6" data-cost="35">Product 6</option>
+                <option value="product7" data-cost="45">Product 7</option>
+                <option value="product8" data-cost="55">Product 8</option>
+                <option value="product9" data-cost="20">Product 9</option>
+                <option value="product10" data-cost="50">Product 10</option>
+            </select>
+
+            <label for="productCount">Number of Products:</label>
+            <input type="number" id="productCount" placeholder="Enter quantity" oninput="updateTotalAmount()">
+
+            <label for="totalAmount">Total Amount to be Paid (INR):</label>
+            <input type="text" id="totalAmount" placeholder="Total amount" readonly>
+
+            <button id="proceedButton" onclick="proceedToPayment()">Proceed to Pay</button>
+            <button id="cancelButton" onclick="cancelOrder()">Cancel Order</button>
+        </div>
+
+        <div id="output">
+            <p id="status"></p>
+        </div>
+    </div>
+
+    <script>
+        function updateTotalAmount() {
+            var selectedProduct = document.getElementById('productSelect');
+            var quantity = document.getElementById('productCount').value;
+
+            var costPerProduct = selectedProduct.options[selectedProduct.selectedIndex].dataset.cost;
+            var totalAmount = quantity * costPerProduct;
+
+            document.getElementById('totalAmount').value = totalAmount;
+        }
+
+        function proceedToPayment() {
+            var selectedProduct = document.getElementById('productSelect').value;
+            var productCount = document.getElementById('productCount').value;
+            var totalAmount = document.getElementById('totalAmount').value;
+
+            var output = `Product Ordered: ${selectedProduct}\nNumber of Products: ${productCount}\nTotal Amount: ₹${totalAmount}`;
+            document.getElementById('output').style.display = 'block';
+            document.getElementById('output').innerText = output;
+
+            // Simulate payment processing
+            setTimeout(function() {
+                var paymentStatus = (Math.random() < 0.5) ? "success" : "error";
+                openReceiptPage(selectedProduct, productCount, totalAmount, paymentStatus);
+            }, 1000);
+        }
+
+        function openReceiptPage(product, quantity, amount, status) {
+            var receiptWindow = window.open('', '_blank');
+            receiptWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>E-Receipt</title>
+                    <style>
+                        body {
+                            font-family: 'Arial', sans-serif;
+                            margin: 0;
+                            padding: 20px;
+                            background-color: #f8f9fa;
+                            color: #495057;
+                            text-align: center;
+                        }
+
+                        h1 {
+                            color: #007bff;
+                            margin-bottom: 20px;
+                        }
+
+                        .receipt-details {
+                            border: 2px solid #007bff;
+                            border-radius: 10px;
+                            padding: 20px;
+                            margin: 20px auto;
+                            max-width: 400px;
+                            background-color: #ffffff;
+                            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                        }
+
+                        p {
+                            font-size: 18px;
+                            margin-bottom: 10px;
+                        }
+
+                        .status {
+                            font-size: 20px;
+                            margin-top: 10px;
+                        }
+
+                        .status.success {
+                            color: #28a745;
+                        }
+
+                        .status.error {
+                            color: #dc3545;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1>E-Receipt</h1>
+                    <div class="receipt-details">
+                        <p>Product Ordered: ${product}</p>
+                        <p>Number of Products: ${quantity}</p>
+                        <p>Total Amount: ₹${amount}</p>
+                        <p>Payment Status: ${status === "success" ? "Successful" : "Failed"}</p>
+                    </div>
+                </body>
+                </html>
+            `);
+            receiptWindow.document.close();
+        }
+
+        function cancelOrder() {
+            var productCount = document.getElementById('productCount');
+            var quantity = parseInt(productCount.value);
+
+            if (quantity <= 0 || isNaN(quantity)) {
+                // Show pop-up for quantity error
+                alert("Error: Choose a valid quantity greater than 0.");
+                // Light up the text box
+                productCount.style.border = "2px solid #dc3545";
+                return;
+            }
+
+            // Reset the form and show cancellation message
+            document.getElementById('productSelect').selectedIndex = 0;
+            document.getElementById('productCount').value = '';
+            document.getElementById('totalAmount').value = '';
+
+            // Show pop-up for order cancellation
+            alert("Order Cancelled.");
+            // Reset text box border
+            productCount.style.border = "1px solid #ced4da";
+        }
+    </script>
+</body>
+</html>

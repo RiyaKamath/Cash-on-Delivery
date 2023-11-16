@@ -133,6 +133,8 @@
             max-width: 400px;
             margin: 0 auto;
             text-align: left;
+            max-height: 400px; /* Added max-height for scrollability */
+            overflow-y: auto; 
         }
 
         .modal-header {
@@ -425,6 +427,122 @@
             document.getElementById('output').style.display = 'none';
             document.getElementById('displaySelectedProducts').innerHTML = '';
         }
-    </script>
+  function confirmOrder() {
+                var totalAmount = document.getElementById('totalAmount').value;
+                var products = getSelectedProducts(); // Helper function to get selected products
+
+                setTimeout(function() {
+                    var paymentStatus = (Math.random() < 0.5) ? "success" : "error";
+                    openReceiptPage(products, totalAmount, paymentStatus);
+                }, 1000);
+            }
+
+            function getSelectedProducts() {
+                var productContainers = document.getElementsByClassName('productContainer');
+                var products = [];
+
+                for (var i = 0; i < productContainers.length; i++) {
+                    var productSelect = productContainers[i].getElementsByClassName('productSelect')[0];
+                    var productCount = productContainers[i].getElementsByClassName('productCount')[0];
+
+                    var selectedProduct = productSelect.value;
+                    var quantity = productCount.value;
+
+                    products.push({
+                        product: selectedProduct,
+                        quantity: quantity
+                    });
+                }
+
+                return products;
+            }
+
+  function proceedToPayment() {
+            var productContainers = document.getElementsByClassName('productContainer');
+            var products = getSelectedProducts(); // Helper function to get selected products
+            var totalAmount = document.getElementById('totalAmount').value;
+
+            var output = "Products Ordered:\n";
+            for (var i = 0; i < products.length; i++) {
+                output += `${products[i].product} - ${products[i].quantity} units\n`;
+            }
+            output += `Total Amount: ₹${totalAmount}`;
+
+            // Display the output in the #output div (optional)
+            document.getElementById('output').style.display = 'block';
+            document.getElementById('output').innerText = output;
+
+            // Open a new tab for the E-receipt
+            openReceiptPage(products, totalAmount);
+        }
+
+        function openReceiptPage(products, amount) {
+            var receiptWindow = window.open('', '_blank');
+            receiptWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>E-Receipt</title>
+                    <style>
+                        body {
+                            font-family: 'Arial', sans-serif;
+                            margin: 0;
+                            padding: 20px;
+                            background-color: #f8f9fa;
+                            color: #495057;
+                            text-align: center;
+                        }
+
+                        h1 {
+                            color: #007bff;
+                            margin-bottom: 20px;
+                        }
+
+                        .receipt-details {
+                            border: 2px solid #007bff;
+                            border-radius: 10px;
+                            padding: 20px;
+                            margin: 20px auto;
+                            max-width: 400px;
+                            background-color: #ffffff;
+                            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                        }
+
+                        p {
+                            font-size: 18px;
+                            margin-bottom: 10px;
+                        }
+
+                        .status {
+                            font-size: 20px;
+                            margin-top: 10px;
+                        }
+
+                        .status.success {
+                            color: #28a745;
+                        }
+
+                        .status.error {
+                            color: #dc3545;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1>E-Receipt</h1>
+                    <div class="receipt-details">
+                        <p>Products Ordered:</p>
+                        ${products.map(product => `<p>${product.product} - ${product.quantity} units</p>`).join('')}
+                        <p>Total Amount: ₹${amount}</p>
+                        <!-- You can add more details as needed -->
+                    </div>
+                </body>
+                </html>
+            `);
+            receiptWindow.document.close();
+        }
+        </script>
+    </div>
 </body>
 </html>

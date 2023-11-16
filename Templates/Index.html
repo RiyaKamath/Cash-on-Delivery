@@ -13,22 +13,25 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            background-color: #f8f9fa;
-            color: #495057;
+            min-height: 100vh;
+            background: linear-gradient(to right, #3498db, #8e44ad);
+            color: #ffffff;
         }
 
         #container {
             text-align: center;
             padding: 20px;
             border-radius: 10px;
-            background-color: #ffffff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
         }
 
         h1 {
-            color: #007bff;
+            color: #3498db;
             margin-bottom: 20px;
+            font-size: 2em;
         }
 
         #formContainer {
@@ -40,13 +43,20 @@
         label {
             font-size: 18px;
             margin-bottom: 10px;
+            color: #2c3e50;
         }
 
         select, input {
             padding: 10px;
             margin-bottom: 20px;
-            width: 250px;
+            width: 100%;
             font-size: 16px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+        }
+
+        #totalAmount {
+            background-color: #ecf0f1;
         }
 
         #output {
@@ -54,39 +64,112 @@
             margin: 20px 0;
             padding: 15px;
             font-size: 18px;
-            background-color: #e6e6e6;
+            background-color: #2ecc71;
             border-radius: 5px;
+        }
+
+        #proceedButton, #cancelButton, #addProductButton, #confirmOrderButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            margin-top: 10px;
+            transition: background-color 0.3s;
         }
 
         #proceedButton {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #ffc107;
-            color: #212529;
-            border: none;
-            border-radius: 5px;
-            transition: background-color 0.3s;
+            background-color: #3498db;
+            color: #ffffff;
         }
 
         #proceedButton:hover {
-            background-color: #ffd43b;
+            background-color: #2980b9;
         }
 
         #cancelButton {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #dc3545;
+            background-color: #e74c3c;
             color: #ffffff;
-            border: none;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-            margin-top: 10px;
         }
 
         #cancelButton:hover {
-            background-color: #c82333;
+            background-color: #c0392b;
+        }
+
+        #addProductButton, #confirmOrderButton {
+            background-color: #2ecc71;
+            color: #ffffff;
+        }
+
+        #addProductButton:hover, #confirmOrderButton:hover {
+            background-color: #27ae60;
+        }
+
+        #selectedProducts {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        #selectedProducts p {
+            margin: 0;
+        }
+
+        #productModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #3498db;
+        }
+
+        .close-modal {
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #e74c3c;
+            font-size: 18px;
+        }
+
+        .product-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .product-list li {
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-list li label {
+            flex: 1;
+            margin-right: 10px;
         }
     </style>
 </head>
@@ -94,63 +177,178 @@
     <div id="container">
         <h1>Order and Payment System</h1>
         <div id="formContainer">
-            <label for="productSelect">Select a Product:</label>
-            <select id="productSelect" onchange="updateTotalAmount()">
-                <option value="product1" data-cost="50">Product 1</option>
-                <option value="product2" data-cost="30">Product 2</option>
-                <option value="product3" data-cost="25">Product 3</option>
-                <option value="product4" data-cost="40">Product 4</option>
-                <option value="product5" data-cost="60">Product 5</option>
-                <option value="product6" data-cost="35">Product 6</option>
-                <option value="product7" data-cost="45">Product 7</option>
-                <option value="product8" data-cost="55">Product 8</option>
-                <option value="product9" data-cost="20">Product 9</option>
-                <option value="product10" data-cost="50">Product 10</option>
-            </select>
+            <label for="productSelect">Select Products and Quantities:</label>
+            <div id="productsContainer"></div>
 
-            <label for="productCount">Number of Products:</label>
-            <input type="number" id="productCount" placeholder="Enter quantity" oninput="updateTotalAmount()">
+            <button id="addProductButton" onclick="openProductModal()">Add Product</button>
 
             <label for="totalAmount">Total Amount to be Paid (INR):</label>
             <input type="text" id="totalAmount" placeholder="Total amount" readonly>
 
             <button id="proceedButton" onclick="proceedToPayment()">Proceed to Pay</button>
             <button id="cancelButton" onclick="cancelOrder()">Cancel Order</button>
+
+            <div id="selectedProducts">
+                <p><strong>Selected Products and Quantities:</strong></p>
+                <div id="displaySelectedProducts"></div>
+            </div>
         </div>
 
         <div id="output">
             <p id="status"></p>
+            <button id="confirmOrderButton" onclick="confirmOrder()">Confirm Order</button>
+        </div>
+
+        <div id="productModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Select Products</h2>
+                    <button class="close-modal" onclick="closeProductModal()">X</button>
+                </div>
+                <ul class="product-list" id="productList"></ul>
+                <button onclick="addProductsToCart()">Add to Cart</button>
+            </div>
         </div>
     </div>
 
     <script>
-        function updateTotalAmount() {
-            var selectedProduct = document.getElementById('productSelect');
-            var quantity = document.getElementById('productCount').value;
+        var availableProducts = [
+            { id: 'product1', name: 'Product 1', cost: 1950 },
+            { id: 'product2', name: 'Product 2', cost: 150 },
+            { id: 'product3', name: 'Product 3', cost: 650 },
+            { id: 'product4', name: 'Product 4', cost: 170 },
+            { id: 'product5', name: 'Product 5', cost: 800 },
+            { id: 'product6', name: 'Product 6', cost: 710 },
+            // Add more products as needed
+        ];
 
-            var costPerProduct = selectedProduct.options[selectedProduct.selectedIndex].dataset.cost;
-            var totalAmount = quantity * costPerProduct;
+        function openProductModal() {
+            var productList = document.getElementById('productList');
+            productList.innerHTML = '';
+
+            for (var i = 0; i < availableProducts.length; i++) {
+                var productItem = document.createElement('li');
+                productItem.innerHTML = `
+                    <label>
+                        <input type="checkbox" class="productCheckbox" value="${availableProducts[i].id}" data-cost="${availableProducts[i].cost}">
+                        ${availableProducts[i].name} - ₹${availableProducts[i].cost}
+                    </label>
+                    <input type="number" class="quantityInput" placeholder="Quantity" min="1">
+                `;
+                productList.appendChild(productItem);
+            }
+
+            document.getElementById('productModal').style.display = 'flex';
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').style.display = 'none';
+        }
+
+        function addProductsToCart() {
+            var productsContainer = document.getElementById('productsContainer');
+            var selectedProducts = document.getElementsByClassName('productCheckbox');
+            var quantities = document.getElementsByClassName('quantityInput');
+
+            for (var i = 0; selectedProducts.length; i++) {
+                if (selectedProducts[i].checked) {
+                    var productSelect = document.createElement('select');
+                    productSelect.className = 'productSelect';
+                    productSelect.onchange = updateTotalAmount;
+                    productSelect.innerHTML = `<option value="${selectedProducts[i].value}" data-cost="${selectedProducts[i].dataset.cost}">${availableProducts.find(p => p.id === selectedProducts[i].value).name}</option>`;
+
+                    var productCount = document.createElement('input');
+                    productCount.type = 'number';
+                    productCount.className = 'productCount';
+                    productCount.value = quantities[i].value || 1;  
+                    productCount.placeholder = 'Enter quantity';
+                    productCount.oninput = updateTotalAmount;
+
+                    var productContainer = document.createElement('div');
+                    productContainer.className = 'productContainer';
+                    productContainer.appendChild(productSelect);
+                    productContainer.appendChild(productCount);
+
+                    productsContainer.appendChild(productContainer);
+                }
+            }
+
+            closeProductModal();
+        }
+
+        function updateTotalAmount() {
+            var productContainers = document.getElementsByClassName('productContainer');
+            var totalAmount = 0;
+            var selectedProducts = [];
+
+            for (var i = 0; i < productContainers.length; i++) {
+                var productSelect = productContainers[i].getElementsByClassName('productSelect')[0];
+                var productCount = productContainers[i].getElementsByClassName('productCount')[0];
+
+                var costPerProduct = productSelect.options[productSelect.selectedIndex].dataset.cost;
+                var quantity = productCount.value;
+
+                totalAmount += quantity * costPerProduct;
+
+                var selectedProduct = productSelect.options[productSelect.selectedIndex].text;
+                selectedProducts.push({ product: selectedProduct, quantity: quantity });
+            }
 
             document.getElementById('totalAmount').value = totalAmount;
+
+            displaySelectedProducts(selectedProducts);
+        }
+
+        function displaySelectedProducts(products) {
+            var displaySelectedProducts = document.getElementById('displaySelectedProducts');
+            displaySelectedProducts.innerHTML = '';
+
+            for (var i = 0; i < products.length; i++) {
+                var productInfo = document.createElement('p');
+                productInfo.textContent = `${products[i].product} - ${products[i].quantity} units`;
+                displaySelectedProducts.appendChild(productInfo);
+            }
         }
 
         function proceedToPayment() {
-            var selectedProduct = document.getElementById('productSelect').value;
-            var productCount = document.getElementById('productCount').value;
+            var productContainers = document.getElementsByClassName('productContainer');
+            var products = [];
+
+            for (var i = 0; i < productContainers.length; i++) {
+                var productSelect = productContainers[i].getElementsByClassName('productSelect')[0];
+                var productCount = productContainers[i].getElementsByClassName('productCount')[0];
+
+                var selectedProduct = productSelect.value;
+                var quantity = productCount.value;
+
+                products.push({
+                    product: selectedProduct,
+                    quantity: quantity
+                });
+            }
+
             var totalAmount = document.getElementById('totalAmount').value;
 
-            var output = `Product Ordered: ${selectedProduct}\nNumber of Products: ${productCount}\nTotal Amount: ₹${totalAmount}`;
+            var output = "Products Ordered:\n";
+            for (var i = 0; i < products.length; i++) {
+                output += `${products[i].product} - ${products[i].quantity} units\n`;
+            }
+            output += `Total Amount: ₹${totalAmount}`;
+
             document.getElementById('output').style.display = 'block';
             document.getElementById('output').innerText = output;
+        }
 
-            // Simulate payment processing
+        function confirmOrder() {
+            var totalAmount = document.getElementById('totalAmount').value;
+
             setTimeout(function() {
                 var paymentStatus = (Math.random() < 0.5) ? "success" : "error";
-                openReceiptPage(selectedProduct, productCount, totalAmount, paymentStatus);
+                openReceiptPage(products, totalAmount, paymentStatus);
             }, 1000);
         }
 
-        function openReceiptPage(product, quantity, amount, status) {
+        function openReceiptPage(products, amount, status) {
             var receiptWindow = window.open('', '_blank');
             receiptWindow.document.write(`
                 <!DOCTYPE html>
@@ -206,8 +404,8 @@
                 <body>
                     <h1>E-Receipt</h1>
                     <div class="receipt-details">
-                        <p>Product Ordered: ${product}</p>
-                        <p>Number of Products: ${quantity}</p>
+                        <p>Products Ordered:</p>
+                        ${products.map(product => `<p>${product.product} - ${product.quantity} units</p>`).join('')}
                         <p>Total Amount: ₹${amount}</p>
                         <p>Payment Status: ${status === "success" ? "Successful" : "Failed"}</p>
                     </div>
@@ -218,26 +416,14 @@
         }
 
         function cancelOrder() {
-            var productCount = document.getElementById('productCount');
-            var quantity = parseInt(productCount.value);
-
-            if (quantity <= 0 || isNaN(quantity)) {
-                // Show pop-up for quantity error
-                alert("Error: Choose a valid quantity greater than 0.");
-                // Light up the text box
-                productCount.style.border = "2px solid #dc3545";
-                return;
+            var productsContainer = document.getElementById('productsContainer');
+            while (productsContainer.firstChild) {
+                productsContainer.removeChild(productsContainer.firstChild);
             }
 
-            // Reset the form and show cancellation message
-            document.getElementById('productSelect').selectedIndex = 0;
-            document.getElementById('productCount').value = '';
             document.getElementById('totalAmount').value = '';
-
-            // Show pop-up for order cancellation
-            alert("Order Cancelled.");
-            // Reset text box border
-            productCount.style.border = "1px solid #ced4da";
+            document.getElementById('output').style.display = 'none';
+            document.getElementById('displaySelectedProducts').innerHTML = '';
         }
     </script>
 </body>

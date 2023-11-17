@@ -12,6 +12,7 @@ def index():
 def pay():
     semaphore.acquire()
     try:
+        pass
         return 'Payment processed', 200
     finally:
         semaphore.release()
